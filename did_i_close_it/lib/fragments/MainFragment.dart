@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainFragment extends StatefulWidget {
   @override
@@ -12,19 +13,35 @@ class MainFragment extends StatefulWidget {
 }
 
 class _MainFragmentState extends State<MainFragment> {
+  SharedPreferences prefs;
   bool _locked = false;
   String _rawNonceInput;
+
+  Future<Null> _init() async{
+    this.prefs =  await SharedPreferences.getInstance();
+    bool lockState;
+    if (prefs.getKeys().contains("DOOR_LOCKED_KEY"))
+      lockState = prefs.getBool("DOOR_LOCKED_KEY");
+    else
+      lockState = false;
+
+    setState(() {
+      _locked = lockState;
+        });
+  }
 
   void _setLock() {
     setState(() {
       _locked = true;
     });
+    prefs.setBool("DOOR_LOCKED_KEY", true);
   }
 
   void _setUnlock() {
     setState(() {
       _locked = false;
     });
+    prefs.setBool("DOOR_LOCKED_KEY", false);
   }
 
   void _onNonceTextChange(String s) {
@@ -41,7 +58,6 @@ class _MainFragmentState extends State<MainFragment> {
             title: new Text("Just to be sure..."),
             children: <Widget>[
               new Column(
-                
                 children: <Widget>[
                   new Padding(
                       padding: new EdgeInsets.all(8.0),
@@ -75,6 +91,12 @@ class _MainFragmentState extends State<MainFragment> {
       print("Unlocking");
       _setUnlock();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
   }
 
   @override
