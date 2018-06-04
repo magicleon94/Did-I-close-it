@@ -15,10 +15,10 @@ class MainFragment extends StatefulWidget {
 class _MainFragmentState extends State<MainFragment> {
   SharedPreferences prefs;
   bool _locked = false;
-  String _rawNonceInput;
+  final _formKey = new GlobalKey<FormState>();
 
-  Future<Null> _init() async{
-    this.prefs =  await SharedPreferences.getInstance();
+  Future<Null> _init() async {
+    this.prefs = await SharedPreferences.getInstance();
     bool lockState;
     if (prefs.getKeys().contains("DOOR_LOCKED_KEY"))
       lockState = prefs.getBool("DOOR_LOCKED_KEY");
@@ -27,7 +27,7 @@ class _MainFragmentState extends State<MainFragment> {
 
     setState(() {
       _locked = lockState;
-        });
+    });
   }
 
   void _setLock() {
@@ -44,53 +44,67 @@ class _MainFragmentState extends State<MainFragment> {
     prefs.setBool("DOOR_LOCKED_KEY", false);
   }
 
-  void _onNonceTextChange(String s) {
-    _rawNonceInput = s;
+  void _submitNonce(s) {
+    if (_formKey.currentState.validate()) {
+      Navigator.of(context).pop(context);
+      _setUnlock();
+    }
   }
 
   Future<Null> _beSure() async {
     var generator = new Random();
-    int nonce = generator.nextInt(1000);
+    int nonce = generator.nextInt(10000);
+
     await showDialog(
         context: context,
         builder: (BuildContext context) {
           return new SimpleDialog(
-            title: new Text("Just to be sure..."),
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  new Padding(
-                      padding: new EdgeInsets.all(8.0),
-                      child: new TextField(
-                        decoration: new InputDecoration(
-                          labelText: 'Insert this random number: $nonce',
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (String s) {
-                          _onNonceTextChange(s);
-                        },
-                      )),
-                  new Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        new RaisedButton(
-                          child: new Text("Unlock it!"),
-                          onPressed: () {
-                            Navigator.of(context).pop(context);
-                          },
-                        )
-                      ])
-                ],
-              )
-            ],
-          );
+              title: new Text("Just to be sure..."),
+              children: <Widget>[
+                new Container(
+                    width: 300.0,
+                    height: 200.0,
+                    child: new Padding(
+                        padding: new EdgeInsets.all(16.0),
+                        child: new Form(
+                            key: _formKey,
+                            child: new Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  new TextFormField(
+                                    decoration: new InputDecoration(
+                                      labelText:
+                                          'Insert this random number: $nonce',
+                                      labelStyle:
+                                          new TextStyle(color: Colors.black),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    onFieldSubmitted: (s) => _submitNonce(s),
+                                    validator: (value) {
+                                      print(value);
+                                      if (value.isEmpty ||
+                                          value != nonce.toString()) {
+                                        return 'Incorrect value';
+                                      }
+                                    },
+                                  ),
+                                  new Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        new RaisedButton(
+                                          child: new Text("Unlock it!"),
+                                          color: Theme.of(context).accentColor,
+                                          textColor: Colors.white,
+                                          onPressed: () {
+                                            _submitNonce("");
+                                          },
+                                        )
+                                      ])
+                                ]))))
+              ]);
         });
-    int input = int.tryParse(_rawNonceInput);
-    print(input);
-    if (input != null && input == nonce) {
-      print("Unlocking");
-      _setUnlock();
-    }
   }
 
   @override
@@ -105,6 +119,7 @@ class _MainFragmentState extends State<MainFragment> {
       resizeToAvoidBottomPadding: false,
       body: new Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
           new Flexible(
             flex: 1,
@@ -129,6 +144,7 @@ class _MainFragmentState extends State<MainFragment> {
                 height: 100.0,
                 minWidth: 200.0,
                 color: Colors.blue,
+                textColor: Colors.white,
                 splashColor: Colors.lightBlue,
               )),
             ),

@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     @override
     Widget build(BuildContext context){
         return new Scaffold(
+          resizeToAvoidBottomPadding: false,
           appBar: new AppBar(
             title: new Text("Did I close it?"),
           ),
