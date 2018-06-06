@@ -10,7 +10,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Did I lock it??',
       theme: new ThemeData(
-          primarySwatch: Colors.blue, backgroundColor: Colors.lightBlueAccent),
+          primarySwatch: Colors.blue, 
+          backgroundColor: Colors.lightBlueAccent,
+          primaryColor: Colors.blue,
+          accentColor: Colors.lightBlue),
       home: new HomeScreen(),
     );
   }

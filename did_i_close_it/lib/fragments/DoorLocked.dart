@@ -5,14 +5,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MainFragment extends StatefulWidget {
+class DoorLocked extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new _MainFragmentState();
+    return new _DoorLockedState();
   }
 }
 
-class _MainFragmentState extends State<MainFragment> {
+class _DoorLockedState extends State<DoorLocked> {
   SharedPreferences prefs;
   bool _locked = false;
   final _formKey = new GlobalKey<FormState>();
@@ -117,39 +117,42 @@ class _MainFragmentState extends State<MainFragment> {
   Widget build(BuildContext context) {
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
-      body: new Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        verticalDirection: VerticalDirection.down,
-        children: <Widget>[
-          new Flexible(
-            flex: 1,
-            child: new Container(
-              child: Center(
-                  child: new Image.asset("assets/images/" +
-                      (_locked ? "lock_closed.png" : "lock_open.png"))),
+      body: new Container(
+        decoration: new BoxDecoration(color:Theme.of(context).accentColor),
+              child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          verticalDirection: VerticalDirection.down,
+          children: <Widget>[
+            new Flexible(
+              flex: 1,
+              child: new Container(
+                child: Center(
+                    child: new Image.asset("assets/images/" +
+                        (_locked ? "lock_closed.png" : "lock_open.png"))),
+              ),
             ),
-          ),
-          new Flexible(
-            flex: 1,
-            child: new Container(
-              child: new Center(
-                  child: new MaterialButton(
-                child: new Text(_locked ? "Unlock" : "Lock"),
-                onPressed: () {
-                  if (_locked)
-                    _beSure();
-                  else
-                    _setLock();
-                },
-                height: 100.0,
-                minWidth: 200.0,
-                color: Colors.blue,
-                textColor: Colors.white,
-                splashColor: Colors.lightBlue,
-              )),
-            ),
-          )
-        ],
+            new Flexible(
+              flex: 1,
+              child: new Container(
+                child: new Center(
+                    child: new MaterialButton(
+                  child: new Text(_locked ? "Unlock" : "Lock"),
+                  onPressed: () {
+                    if (_locked)
+                      _beSure();
+                    else
+                      _setLock();
+                  },
+                  height: 100.0,
+                  minWidth: 200.0,
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                  splashColor: Colors.lightBlue,
+                )),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
