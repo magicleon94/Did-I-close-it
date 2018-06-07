@@ -6,44 +6,32 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GasLocked extends StatefulWidget {
+  final SharedPreferences prefs;
+  GasLocked({this.prefs});
+
   @override
   State<StatefulWidget> createState() {
-    return new _DoorLockedState._GasLockedState();
+    return new _GasLockedState();
   }
 }
 
-class _DoorLockedState extends State<GasLocked> {
-  SharedPreferences prefs;
+class _GasLockedState extends State<GasLocked> {
+
   bool _locked = false;
   final _formKey = new GlobalKey<FormState>();
-
-  _DoorLockedState._GasLockedState();
-
-  Future<Null> _init() async {
-    this.prefs = await SharedPreferences.getInstance();
-    bool lockState;
-    if (prefs.getKeys().contains("GAS_LOCKED_KEY"))
-      lockState = prefs.getBool("GAS_LOCKED_KEY");
-    else
-      lockState = false;
-
-    setState(() {
-      _locked = lockState;
-    });
-  }
 
   void _setLock() {
     setState(() {
       _locked = true;
     });
-    prefs.setBool("GAS_LOCKED_KEY", true);
+    widget.prefs.setBool("GAS_LOCKED_KEY", true);
   }
 
   void _setUnlock() {
     setState(() {
       _locked = false;
     });
-    prefs.setBool("GAS_LOCKED_KEY", false);
+    widget.prefs.setBool("GAS_LOCKED_KEY", false);
   }
 
   void _submitNonce(s) {
@@ -112,7 +100,16 @@ class _DoorLockedState extends State<GasLocked> {
   @override
   void initState() {
     super.initState();
-    _init();
+
+    bool lockState;
+    if (widget.prefs.getKeys().contains("GAS_LOCKED_KEY"))
+      lockState = widget.prefs.getBool("GAS_LOCKED_KEY");
+    else
+      lockState = false;
+
+    setState(() {
+      _locked = lockState;
+    });
   }
 
   @override

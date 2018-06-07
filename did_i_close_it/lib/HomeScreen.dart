@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'TwoPanels.dart';
+import 'SplashScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key, this.title}) : super(key: key);
@@ -12,10 +16,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
+  SharedPreferences prefs;
+    bool ready = false;
+
+  Future<Null> _getPrefs() async{
+    print("Getting Prefs...");
+    this.prefs = await SharedPreferences.getInstance();
+        print("Got prefs");
+    setState(() {
+          this.ready = true;
+        });
+  }
 
   @override
   void initState() {
     super.initState();
+    _getPrefs();
     controller = new AnimationController(
         vsync: this, duration: new Duration(milliseconds: 200), value: 0.0);
   }
@@ -34,29 +50,29 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: new AppBar(
-          title: new Text("Did I close it?"),
-          elevation: 0.0,
-          leading: new IconButton(
-            onPressed: () {
-              controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
-            },
-            icon: new AnimatedIcon(
-              icon: AnimatedIcons.menu_close,
-              progress: controller.view,
+    if (ready){
+      return new Scaffold(
+          resizeToAvoidBottomPadding: false,
+          appBar: new AppBar(
+            title: new Text("Did I close it?"),
+            elevation: 0.0,
+            leading: new IconButton(
+              onPressed: () {
+                controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
+              },
+              icon: new AnimatedIcon(
+                icon: AnimatedIcons.menu_close,
+                progress: controller.view,
+              ),
             ),
           ),
-        ),
-        body: new GestureDetector(
-            onVerticalDragEnd: (details) {
-              if (details.primaryVelocity == 0) return;
-              controller.fling(
-                  velocity: details.primaryVelocity > 0 ? -1.0 : 1.0);
-            },
-            child: TwoPanels(
-              controller: this.controller,
-            )));
+          body: TwoPanels(
+                controller: this.controller,
+                prefs: this.prefs,
+              )
+      );
+    }else{
+      return new SplashScreen();
+    }
   }
 }

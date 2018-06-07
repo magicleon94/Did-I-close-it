@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DoorLocked extends StatefulWidget {
+  final SharedPreferences prefs;
+  DoorLocked({this.prefs});
+
   @override
   State<StatefulWidget> createState() {
     return new _DoorLockedState();
@@ -13,35 +16,22 @@ class DoorLocked extends StatefulWidget {
 }
 
 class _DoorLockedState extends State<DoorLocked> {
-  SharedPreferences prefs;
+
   bool _locked = false;
   final _formKey = new GlobalKey<FormState>();
-
-  Future<Null> _init() async {
-    this.prefs = await SharedPreferences.getInstance();
-    bool lockState;
-    if (prefs.getKeys().contains("DOOR_LOCKED_KEY"))
-      lockState = prefs.getBool("DOOR_LOCKED_KEY");
-    else
-      lockState = false;
-
-    setState(() {
-      _locked = lockState;
-    });
-  }
 
   void _setLock() {
     setState(() {
       _locked = true;
     });
-    prefs.setBool("DOOR_LOCKED_KEY", true);
+    widget.prefs.setBool("DOOR_LOCKED_KEY", true);
   }
 
   void _setUnlock() {
     setState(() {
       _locked = false;
     });
-    prefs.setBool("DOOR_LOCKED_KEY", false);
+    widget.prefs.setBool("DOOR_LOCKED_KEY", false);
   }
 
   void _submitNonce(s) {
@@ -110,7 +100,16 @@ class _DoorLockedState extends State<DoorLocked> {
   @override
   void initState() {
     super.initState();
-    _init();
+
+    bool lockState;
+    if (widget.prefs.getKeys().contains("DOOR_LOCKED_KEY"))
+      lockState = widget.prefs.getBool("DOOR_LOCKED_KEY");
+    else
+      lockState = false;
+
+    setState(() {
+      _locked = lockState;
+    });
   }
 
   @override
@@ -118,8 +117,8 @@ class _DoorLockedState extends State<DoorLocked> {
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
-        decoration: new BoxDecoration(color:Theme.of(context).accentColor),
-              child: new Column(
+        decoration: new BoxDecoration(color: Theme.of(context).accentColor),
+        child: new Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           verticalDirection: VerticalDirection.down,
           children: <Widget>[
