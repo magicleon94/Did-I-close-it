@@ -17,6 +17,16 @@ class _TwoPanelState extends State<TwoPanels> {
   static const header_height = 32.0;
 
   int _selectedDrawerIndex = 0;
+  var titles = [
+    "Did I close the door?",
+    "Did I close the gas?"
+  ];
+
+    bool get isFrontPanelVisible {
+    final AnimationStatus status = widget.controller.status;
+    return status == AnimationStatus.completed ||
+        status == AnimationStatus.forward;
+  }
 
   _getDrawerItemWidget(int pos) {
     switch (pos) {
@@ -31,14 +41,13 @@ class _TwoPanelState extends State<TwoPanels> {
 
   _onSelectDrawerItemWidget(int pos) {
     setState(() {
-      print("Setting state to: " + pos.toString());
       _selectedDrawerIndex = pos;
     });
   }
 
   Animation<RelativeRect> getPanelAnimation(BoxConstraints constraints) {
     final height = constraints.biggest.height;
-    final backPanelHeight = height - header_height;
+    final backPanelHeight = height - 110.0;- header_height;
     final frontPanelHeight = -header_height;
 
     return new RelativeRectTween(
@@ -50,8 +59,21 @@ class _TwoPanelState extends State<TwoPanels> {
   }
 
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
-    return new Container(
-      child: new Stack(
+    return new Scaffold(
+      appBar: new AppBar(
+            title: new Text(titles[_selectedDrawerIndex]),
+            elevation: 0.0,
+            leading: new IconButton(
+              onPressed: () {
+                widget.controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
+              },
+              icon: new AnimatedIcon(
+                icon: AnimatedIcons.menu_close,
+                progress: widget.controller.view,
+              ),
+            ),
+          ),
+      body: new Stack(
         children: <Widget>[
           _getDrawerItemWidget(_selectedDrawerIndex),
           new PositionedTransition(

@@ -42,30 +42,11 @@ class _HomeScreenState extends State<HomeScreen>
     controller.dispose();
   }
 
-  bool get isFrontPanelVisible {
-    final AnimationStatus status = controller.status;
-    return status == AnimationStatus.completed ||
-        status == AnimationStatus.forward;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (ready){
       return new Scaffold(
           resizeToAvoidBottomPadding: false,
-          appBar: new AppBar(
-            title: new Text("Did I close it?"),
-            elevation: 0.0,
-            leading: new IconButton(
-              onPressed: () {
-                controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
-              },
-              icon: new AnimatedIcon(
-                icon: AnimatedIcons.menu_close,
-                progress: controller.view,
-              ),
-            ),
-          ),
           body: TwoPanels(
                 controller: this.controller,
                 prefs: this.prefs,
