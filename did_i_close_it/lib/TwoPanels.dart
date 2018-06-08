@@ -47,7 +47,7 @@ class _TwoPanelState extends State<TwoPanels> {
 
   Animation<RelativeRect> getPanelAnimation(BoxConstraints constraints) {
     final height = constraints.biggest.height;
-    final backPanelHeight = height - 110.0;- header_height;
+    final backPanelHeight = height - header_height;
     final frontPanelHeight = -header_height;
 
     return new RelativeRectTween(
@@ -60,19 +60,7 @@ class _TwoPanelState extends State<TwoPanels> {
 
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
     return new Scaffold(
-      appBar: new AppBar(
-            title: new Text(titles[_selectedDrawerIndex]),
-            elevation: 0.0,
-            leading: new IconButton(
-              onPressed: () {
-                widget.controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
-              },
-              icon: new AnimatedIcon(
-                icon: AnimatedIcons.menu_close,
-                progress: widget.controller.view,
-              ),
-            ),
-          ),
+      
       body: new Stack(
         children: <Widget>[
           _getDrawerItemWidget(_selectedDrawerIndex),
