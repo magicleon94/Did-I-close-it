@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GasLocked extends StatefulWidget {
   final SharedPreferences prefs;
-  GasLocked({this.prefs});
+  final Color backgroundColor;
+  GasLocked({this.prefs,this.backgroundColor});
 
   @override
   State<StatefulWidget> createState() {
@@ -117,7 +118,7 @@ class _GasLockedState extends State<GasLocked> {
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
-        decoration: new BoxDecoration(color:Theme.of(context).accentColor),
+        decoration: new BoxDecoration(color:widget.backgroundColor),
               child: new Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           verticalDirection: VerticalDirection.down,

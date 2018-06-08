@@ -6,8 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class TwoPanels extends StatefulWidget {
   final AnimationController controller;
   final SharedPreferences prefs;
+  final ValueChanged<Color> onChanged;
 
-  TwoPanels({this.controller,this.prefs});
+  TwoPanels({this.controller, this.prefs, this.onChanged});
 
   @override
   _TwoPanelState createState() => new _TwoPanelState();
@@ -15,14 +16,12 @@ class TwoPanels extends StatefulWidget {
 
 class _TwoPanelState extends State<TwoPanels> {
   static const header_height = 32.0;
-
+  Color color;
+  Color appBarColor;
   int _selectedDrawerIndex = 0;
-  var titles = [
-    "Did I close the door?",
-    "Did I close the gas?"
-  ];
+  var titles = ["Did I close the door?", "Did I close the gas?"];
 
-    bool get isFrontPanelVisible {
+  bool get isFrontPanelVisible {
     final AnimationStatus status = widget.controller.status;
     return status == AnimationStatus.completed ||
         status == AnimationStatus.forward;
@@ -31,9 +30,12 @@ class _TwoPanelState extends State<TwoPanels> {
   _getDrawerItemWidget(int pos) {
     switch (pos) {
       case 0:
-        return new DoorLocked(prefs:widget.prefs);
+        return new DoorLocked(prefs: widget.prefs,backgroundColor: color,);
       case 1:
-        return new GasLocked(prefs: widget.prefs,);
+        return new GasLocked(
+          prefs: widget.prefs,
+          backgroundColor: color,
+        );
       default:
         return new Text("Error");
     }
@@ -42,6 +44,7 @@ class _TwoPanelState extends State<TwoPanels> {
   _onSelectDrawerItemWidget(int pos) {
     setState(() {
       _selectedDrawerIndex = pos;
+      widget.onChanged(appBarColor);
     });
   }
 
@@ -60,7 +63,6 @@ class _TwoPanelState extends State<TwoPanels> {
 
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
     return new Scaffold(
-      
       body: new Stack(
         children: <Widget>[
           _getDrawerItemWidget(_selectedDrawerIndex),
@@ -95,6 +97,8 @@ class _TwoPanelState extends State<TwoPanels> {
                           title: new Text("Did I lock the door?"),
                           leading: new Icon(Icons.lock),
                           onTap: () {
+                            color = Theme.of(context).accentColor;
+                            appBarColor = Theme.of(context).primaryColor;
                             _onSelectDrawerItemWidget(0);
                             widget.controller.fling(velocity: -1.0);
                           },
@@ -103,6 +107,8 @@ class _TwoPanelState extends State<TwoPanels> {
                           title: new Text("Did I close the gas?"),
                           leading: new Icon(Icons.local_gas_station),
                           onTap: () {
+                            color = Colors.greenAccent;
+                            appBarColor = Colors.green;
                             _onSelectDrawerItemWidget(1);
                             widget.controller.fling(velocity: -1.0);
                           },

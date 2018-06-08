@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DoorLocked extends StatefulWidget {
   final SharedPreferences prefs;
-  DoorLocked({this.prefs});
+  final Color backgroundColor;
+  DoorLocked({this.prefs,this.backgroundColor});
 
   @override
   State<StatefulWidget> createState() {
@@ -117,7 +118,7 @@ class _DoorLockedState extends State<DoorLocked> {
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
-        decoration: new BoxDecoration(color: Theme.of(context).accentColor),
+        decoration: new BoxDecoration(color: widget.backgroundColor),
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           verticalDirection: VerticalDirection.down,
