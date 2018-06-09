@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:did_i_close_it/fragments/DoorLocked.dart';
-import 'package:did_i_close_it/fragments/GasLocked.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TwoPanels extends StatefulWidget {
   final AnimationController controller;
   final SharedPreferences prefs;
-  final ValueChanged<Color> onChanged;
 
-  TwoPanels({this.controller, this.prefs, this.onChanged});
+  TwoPanels({this.controller, this.prefs});
 
   @override
   _TwoPanelState createState() => new _TwoPanelState();
@@ -16,10 +14,8 @@ class TwoPanels extends StatefulWidget {
 
 class _TwoPanelState extends State<TwoPanels> {
   static const header_height = 32.0;
-  Color color;
-  Color appBarColor;
+  bool _switchValue;
   int _selectedDrawerIndex = 0;
-  var titles = ["Did I close the door?", "Did I close the gas?"];
 
   bool get isFrontPanelVisible {
     final AnimationStatus status = widget.controller.status;
@@ -27,26 +23,32 @@ class _TwoPanelState extends State<TwoPanels> {
         status == AnimationStatus.forward;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.prefs.getKeys().contains("ASK_NUMBER_ON_UNLOCK")) {
+      _switchValue = widget.prefs.getBool("ASK_NUMBER_ON_UNLOCK");
+    } else {
+      _switchValue = false;
+      widget.prefs.setBool("ASK_NUMBER_ON_UNLOCK", false);
+    }
+  }
+
   _getDrawerItemWidget(int pos) {
     switch (pos) {
       case 0:
-        return new DoorLocked(prefs: widget.prefs,backgroundColor: color,);
-      case 1:
-        return new GasLocked(
-          prefs: widget.prefs,
-          backgroundColor: color,
-        );
+        return new DoorLocked(prefs: widget.prefs);
       default:
         return new Text("Error");
     }
   }
 
-  _onSelectDrawerItemWidget(int pos) {
+/*   _onSelectDrawerItemWidget(int pos) {
     setState(() {
       _selectedDrawerIndex = pos;
       widget.onChanged(appBarColor);
     });
-  }
+  } */
 
   Animation<RelativeRect> getPanelAnimation(BoxConstraints constraints) {
     final height = constraints.biggest.height;
@@ -56,13 +58,14 @@ class _TwoPanelState extends State<TwoPanels> {
     return new RelativeRectTween(
             begin: new RelativeRect.fromLTRB(
                 0.0, backPanelHeight, 0.0, frontPanelHeight),
-            end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
+            end: new RelativeRect.fromLTRB(0.0, height/1.5, 0.0, 0.0))
         .animate(new CurvedAnimation(
             parent: widget.controller, curve: Curves.linear));
   }
 
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
     return new Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: new Stack(
         children: <Widget>[
           _getDrawerItemWidget(_selectedDrawerIndex),
@@ -78,8 +81,8 @@ class _TwoPanelState extends State<TwoPanels> {
               child: new Material(
                 elevation: 12.0,
                 borderRadius: new BorderRadius.only(
-                  topLeft: new Radius.circular(32.0),
-                  topRight: new Radius.circular(32.0),
+                  topLeft: new Radius.circular(42.0),
+                  topRight: new Radius.circular(42.0),
                 ),
                 child: new Container(
                     child: new Column(
@@ -93,26 +96,16 @@ class _TwoPanelState extends State<TwoPanels> {
                     new Container(
                         child: new Column(
                       children: <Widget>[
-                        new ListTile(
-                          title: new Text("Did I lock the door?"),
-                          leading: new Icon(Icons.lock),
-                          onTap: () {
-                            color = Theme.of(context).accentColor;
-                            appBarColor = Theme.of(context).primaryColor;
-                            _onSelectDrawerItemWidget(0);
-                            widget.controller.fling(velocity: -1.0);
+                        new SwitchListTile(
+                          value: _switchValue,
+                          title: new Text("Number check for unlock"),
+                          onChanged: (newValue) {
+                            widget.prefs.setBool("ASK_NUMBER_ON_UNLOCK", newValue);
+                            setState(() {
+                              _switchValue = newValue;
+                            });
                           },
                         ),
-                        new ListTile(
-                          title: new Text("Did I close the gas?"),
-                          leading: new Icon(Icons.local_gas_station),
-                          onTap: () {
-                            color = Colors.greenAccent;
-                            appBarColor = Colors.green;
-                            _onSelectDrawerItemWidget(1);
-                            widget.controller.fling(velocity: -1.0);
-                          },
-                        )
                       ],
                     )),
                   ],

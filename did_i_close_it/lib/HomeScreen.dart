@@ -18,12 +18,9 @@ class _HomeScreenState extends State<HomeScreen>
   AnimationController controller;
   SharedPreferences prefs;
     bool ready = false;
-    Color c;
 
   Future<Null> _getPrefs() async{
-    print("Getting Prefs...");
     this.prefs = await SharedPreferences.getInstance();
-        print("Got prefs");
     setState(() {
           this.ready = true;
         });
@@ -48,12 +45,6 @@ class _HomeScreenState extends State<HomeScreen>
         status == AnimationStatus.forward;
   }
 
-  void _handleChangeColor(Color newColor){
-    setState(() {
-          this.c = newColor;
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (ready){
@@ -62,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen>
           appBar: new AppBar(
             title: new Text("Did I close it?"),
             elevation: 0.0,
-            backgroundColor: c,
             leading: new IconButton(
               onPressed: () {
                 controller.fling(velocity: isFrontPanelVisible ? -1.0 : 1.0);
@@ -76,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen>
           body: TwoPanels(
                 controller: this.controller,
                 prefs: this.prefs,
-                onChanged: _handleChangeColor,
               )
       );
     }else{

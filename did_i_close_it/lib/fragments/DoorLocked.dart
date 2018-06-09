@@ -7,8 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DoorLocked extends StatefulWidget {
   final SharedPreferences prefs;
-  final Color backgroundColor;
-  DoorLocked({this.prefs,this.backgroundColor});
+  DoorLocked({this.prefs});
 
   @override
   State<StatefulWidget> createState() {
@@ -45,7 +44,8 @@ class _DoorLockedState extends State<DoorLocked> {
   Future<Null> _beSure() async {
     var generator = new Random();
     int nonce = generator.nextInt(10000);
-
+    bool shouldAskNumber = widget.prefs.getBool("ASK_NUMBER_ON_UNLOCK");
+    if (shouldAskNumber){
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -63,12 +63,16 @@ class _DoorLockedState extends State<DoorLocked> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
+                                  new Text('Insert this random number: $nonce',
+                                  style: new TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.0
+                                  ),),
                                   new TextFormField(
+                                    autofocus: true,
                                     decoration: new InputDecoration(
-                                      labelText:
-                                          'Insert this random number: $nonce',
-                                      labelStyle:
-                                          new TextStyle(color: Colors.black),
+          
+                                      contentPadding: new EdgeInsets.all(8.0)
                                     ),
                                     keyboardType: TextInputType.number,
                                     onFieldSubmitted: (s) => _submitNonce(s),
@@ -96,6 +100,9 @@ class _DoorLockedState extends State<DoorLocked> {
                                 ]))))
               ]);
         });
+    }else{
+      _setUnlock();
+    }
   }
 
   @override
@@ -118,8 +125,10 @@ class _DoorLockedState extends State<DoorLocked> {
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
-        decoration: new BoxDecoration(color: widget.backgroundColor),
-        child: new Column(
+        decoration: new BoxDecoration(
+          color: Theme.of(context).accentColor
+          ),
+        child: new Column( 
           crossAxisAlignment: CrossAxisAlignment.stretch,
           verticalDirection: VerticalDirection.down,
           children: <Widget>[
